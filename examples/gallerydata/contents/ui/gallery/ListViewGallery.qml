@@ -81,20 +81,61 @@ Kirigami.ScrollablePage {
         }
     }
 
-    ListView {
-        Timer {
-            id: refreshRequestTimer
-            interval: 3000
-            onTriggered: page.refreshing = false
-        }
-        model: 200
-        delegate: Kirigami.SwipeListItem {
+    Component {
+        id: delegateComponent
+        Kirigami.SwipeListItem {
             id: listItem
-            contentItem: Controls.Label {
-                height: Math.max(implicitHeight, Kirigami.Units.iconSizes.smallMedium)
-                anchors.verticalCenter: parent.verticalCenter
-                text: "Item " + modelData
-                color: listItem.checked || (listItem.pressed && !listItem.checked && !listItem.sectionDelegate) ? listItem.activeTextColor : listItem.textColor
+            contentItem: RowLayout {
+MouseArea {
+    drag {
+        target: listItem
+        axis: Drag.YAxis
+    }
+    Rectangle {
+        anchors.fill: parent
+        color: "red"
+    }
+    preventStealing: true
+    Layout.minimumWidth: 20
+    Layout.maximumWidth: 20
+    Layout.minimumHeight: 20
+
+    property int startY
+    property int mouseDownY
+    property Item originalParent
+    
+    property int currentIndex: index
+
+    onPressed: {
+        originalParent = listItem.parent;
+        listItem.parent = page;
+        listItem.y = originalParent.mapToItem(listItem.parent, listItem.x, listItem.y).y;
+        listItem.z = 99;
+        startY = listItem.y;
+        mouseDownY = mouse.y;
+    }
+onParentChanged:print("EEE"+parent)
+    onPositionChanged: {
+        var newIndex = mainList.indexAt(1, mainList.contentItem.mapFromItem(listItem, 0, 0).y + mouseDownY);
+
+        if (Math.abs(listItem.y - startY) > height && newIndex > -1 && newIndex != index) {
+            print(index+" "+newIndex)
+            listModel.move(index, newIndex, 1)
+        }
+    }onClicked: listModel.move(index, index-1, 1)
+    onReleased: {
+        listItem.z = 0;
+        listItem.parent = originalParent;
+        listItem.y = 0;
+        
+    }
+}
+
+                Controls.Label {
+                    height: Math.max(implicitHeight, Kirigami.Units.iconSizes.smallMedium)
+                    text: "Item " + model.title
+                    color: listItem.checked || (listItem.pressed && !listItem.checked && !listItem.sectionDelegate) ? listItem.activeTextColor : listItem.textColor
+                }
             }
             actions: [
                 Kirigami.Action {
@@ -107,6 +148,36 @@ Kirigami.ScrollablePage {
                     text: "Action 2"
                     onTriggered: showPassiveNotification(model.text + " Action 2 clicked")
                 }]
+        }
+    }
+    ListView {
+        id: mainList
+        Timer {
+            id: refreshRequestTimer
+            interval: 3000
+            onTriggered: page.refreshing = false
+        }
+        model: ListModel {
+            id: listModel
+
+            Component.onCompleted: {
+                for (var i = 0; i < 200; ++i) {
+                    listModel.append({"title": "Item " + i,
+                        "actions": [{text: "Action 1", icon: "document-decrypt"},
+                                    {text: "Action 2", icon: "mail-reply-sender"}]
+                    })
+                }
+            }
+        }
+        moveDisplaced: Transition {
+            NumberAnimation {
+                property: "y"
+                duration: Kirigami.Units.longDuration
+            }
+        }
+        delegate: Kirigami.DelegateRecycler {
+            width: parent ? parent.width : implicitWidth
+            sourceComponent: delegateComponent
         }
     }
 }
