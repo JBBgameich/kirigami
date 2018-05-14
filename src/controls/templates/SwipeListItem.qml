@@ -149,7 +149,8 @@ T2.ItemDelegate {
         //TODO: a global "open" state
         enabled: background.x !== 0
         property bool indicateActiveFocus: listItem.pressed || Settings.tabletMode || listItem.activeFocus || (view ? view.activeFocus : false)
-        property Flickable view: listItem.ListView.view || listItem.parent.ListView.view
+        property Flickable view: listItem.ListView.view || (listItem.parent ? (listItem.parent.ListView.view || listItem.parent) : null)
+
         anchors {
             fill: parent
         }

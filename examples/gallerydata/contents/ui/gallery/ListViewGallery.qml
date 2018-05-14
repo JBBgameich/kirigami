@@ -96,9 +96,10 @@ MouseArea {
         color: "red"
     }
     preventStealing: true
-    Layout.minimumWidth: 20
-    Layout.maximumWidth: 20
-    Layout.minimumHeight: 20
+    Layout.minimumWidth: Kirigami.Units.iconSizes.smallMedium
+    Layout.maximumWidth: Layout.minimumWidth
+    Layout.minimumHeight: Layout.minimumWidth
+    
 
     property int startY
     property int mouseDownY
@@ -108,26 +109,39 @@ MouseArea {
 
     onPressed: {
         originalParent = listItem.parent;
-        listItem.parent = page;
+        listItem.parent = mainList;
         listItem.y = originalParent.mapToItem(listItem.parent, listItem.x, listItem.y).y;
-        listItem.z = 99;
+        originalParent.z = 99;
         startY = listItem.y;
         mouseDownY = mouse.y;
     }
-onParentChanged:print("EEE"+parent)
+
     onPositionChanged: {
         var newIndex = mainList.indexAt(1, mainList.contentItem.mapFromItem(listItem, 0, 0).y + mouseDownY);
 
         if (Math.abs(listItem.y - startY) > height && newIndex > -1 && newIndex != index) {
-            print(index+" "+newIndex)
             listModel.move(index, newIndex, 1)
         }
-    }onClicked: listModel.move(index, index-1, 1)
+    }
     onReleased: {
-        listItem.z = 0;
+        listItem.y = originalParent.mapFromItem(listItem, 0, 0).y;
         listItem.parent = originalParent;
-        listItem.y = 0;
-        
+        dropAnimation.running = true;
+    }
+    SequentialAnimation {
+        id: dropAnimation
+        YAnimator {
+            target: listItem
+            from: listItem.y 
+            to: 0
+            duration: Kirigami.Units.longDuration
+            easing.type: Easing.InOutQuad
+        }
+        PropertyAction {
+            target: listItem.parent
+            property: "z"
+            value: 0
+        }
     }
 }
 

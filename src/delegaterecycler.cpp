@@ -223,7 +223,7 @@ void DelegateRecycler::resetSourceComponent()
 
 void DelegateRecycler::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
-    if (m_item && newGeometry != oldGeometry) {
+    if (m_item && newGeometry.size() != oldGeometry.size()) {
         updateSize(true);
     }
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
