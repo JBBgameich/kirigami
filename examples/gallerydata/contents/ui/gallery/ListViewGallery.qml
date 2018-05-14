@@ -146,6 +146,7 @@ MouseArea {
 }
 
                 Controls.Label {
+                    Layout.fillWidth: true
                     height: Math.max(implicitHeight, Kirigami.Units.iconSizes.smallMedium)
                     text: model.title
                     color: listItem.checked || (listItem.pressed && !listItem.checked && !listItem.sectionDelegate) ? listItem.activeTextColor : listItem.textColor
