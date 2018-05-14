@@ -130,7 +130,7 @@ void DelegateRecycler::syncModel()
 void DelegateRecycler::syncModelData()
 {
     QQmlContext *ctx = QQmlEngine::contextForObject(m_item)->parentContext();
-    ctx->setContextProperty(QStringLiteral("modelData"), m_propertiesTracker->property("trackedModel"));
+    ctx->setContextProperty(QStringLiteral("modelData"), m_propertiesTracker->property("trackedModelData"));
 }
 
 QQmlComponent *DelegateRecycler::sourceComponent() const
@@ -151,9 +151,12 @@ void DelegateRecycler::setSourceComponent(QQmlComponent *component)
     if (!m_propertiesTracker) {
         QQmlComponent *propertiesTrackerComponent = new QQmlComponent(qmlEngine(this), this);
 
-        propertiesTrackerComponent->setData(QByteArrayLiteral("import QtQuick 2.3\nQtObject{property int trackedIndex: index}"), QUrl());
+        propertiesTrackerComponent->setData(QByteArrayLiteral("import QtQuick 2.3\nQtObject{property int trackedIndex: index; property var trackedModel: typeof model != 'undefined' ? model : null; property var trackedModelData: typeof modelData != 'undefined' ? modelData : null}"), QUrl());
         m_propertiesTracker = propertiesTrackerComponent->create(QQmlEngine::contextForObject(this));
+
         connect(m_propertiesTracker, SIGNAL(trackedIndexChanged()), this, SLOT(syncIndex()));
+        connect(m_propertiesTracker, SIGNAL(trackedModelChanged()), this, SLOT(syncModel()));
+        connect(m_propertiesTracker, SIGNAL(trackedModelDataChanged()), this, SLOT(syncModelData()));
     }
 
     if (m_sourceComponent) {
@@ -183,12 +186,9 @@ void DelegateRecycler::setSourceComponent(QQmlComponent *component)
             }
         }
 
-        QQmlContext *myCtx = QQmlEngine::contextForObject(this);
-        ctx->setContextProperty(QStringLiteral("model"), myCtx->contextProperty(QStringLiteral("model")));
-        ctx->setContextProperty(QStringLiteral("modelData"), myCtx->contextProperty(QStringLiteral("modelData")));
+        ctx->setContextProperty(QStringLiteral("model"), m_propertiesTracker->property("trackedModel"));
+        ctx->setContextProperty(QStringLiteral("modelData"), m_propertiesTracker->property("trackedModelData"));
         ctx->setContextProperty(QStringLiteral("index"), m_propertiesTracker->property("trackedIndex"));
-
-qWarning()<<"AAAAAAAAA"<<m_propertiesTracker->property("trackedIndex");
 
         QObject * obj = component->create(ctx);
         m_item = qobject_cast<QQuickItem *>(obj);
@@ -196,12 +196,10 @@ qWarning()<<"AAAAAAAAA"<<m_propertiesTracker->property("trackedIndex");
             obj->deleteLater();
         }
     } else {
-        QQmlContext *myCtx = QQmlEngine::contextForObject(this);
         QQmlContext *ctx = QQmlEngine::contextForObject(m_item)->parentContext();
 
-        QObject *model = myCtx->contextProperty(QStringLiteral("model")).value<QObject*>();
-        ctx->setContextProperty(QStringLiteral("model"), QVariant::fromValue(model));
-        ctx->setContextProperty(QStringLiteral("modelData"), myCtx->contextProperty(QStringLiteral("modelData")));
+        ctx->setContextProperty(QStringLiteral("model"), m_propertiesTracker->property("trackedModel"));
+        ctx->setContextProperty(QStringLiteral("modelData"), m_propertiesTracker->property("trackedModelData"));
         ctx->setContextProperty(QStringLiteral("index"), m_propertiesTracker->property("trackedIndex"));
     }
 
