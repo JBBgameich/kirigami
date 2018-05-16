@@ -87,9 +87,12 @@ Kirigami.ScrollablePage {
             id: listItem
             contentItem: RowLayout {
 MouseArea {
+    id: handle
     drag {
         target: listItem
         axis: Drag.YAxis
+        minimumY: 0
+        maximumY: mainList.height - listItem.height
     }
     Rectangle {
         anchors.fill: parent
@@ -106,6 +109,7 @@ MouseArea {
     property Item originalParent
     
     property int currentIndex: index
+    property int autoScrollThreshold: listItem.height * 3
 
     onPressed: {
         originalParent = listItem.parent;
@@ -116,18 +120,27 @@ MouseArea {
         mouseDownY = mouse.y;
     }
 
-    onPositionChanged: {
+    function arrangeItem() {
         var newIndex = mainList.indexAt(1, mainList.contentItem.mapFromItem(listItem, 0, 0).y + mouseDownY);
 
         if (Math.abs(listItem.y - startY) > height && newIndex > -1 && newIndex != index) {
             listModel.move(index, newIndex, 1)
         }
     }
+    onPositionChanged: {
+        arrangeItem();
+
+        scrollTimer.interval = 500 * Math.max(0.1, (1-Math.max(autoScrollThreshold - listItem.y, listItem.y - mainList.height + autoScrollThreshold + listItem.height) / autoScrollThreshold));
+        scrollTimer.running = (listItem.y < autoScrollThreshold ||
+                    listItem.y > mainList.height - autoScrollThreshold);
+    }
     onReleased: {
         listItem.y = originalParent.mapFromItem(listItem, 0, 0).y;
         listItem.parent = originalParent;
         dropAnimation.running = true;
+        scrollTimer.running = false;
     }
+    onCanceled: released()
     SequentialAnimation {
         id: dropAnimation
         YAnimator {
@@ -141,6 +154,19 @@ MouseArea {
             target: listItem.parent
             property: "z"
             value: 0
+        }
+    }
+    Timer {
+        id: scrollTimer
+        interval: 500
+        repeat: true
+        onTriggered: {
+            if (listItem.y < handle.autoScrollThreshold) {
+                mainList.contentY = Math.max(0, mainList.contentY - Kirigami.Units.gridUnit)
+            } else {
+                mainList.contentY = Math.min(mainList.contentHeight - mainList.height, mainList.contentY + Kirigami.Units.gridUnit)
+            }
+            handle.arrangeItem();
         }
     }
 }
