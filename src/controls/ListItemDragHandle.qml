@@ -132,9 +132,8 @@ MouseArea {
         color: "red"
     }
     preventStealing: true
-    Layout.minimumWidth: Kirigami.Units.iconSizes.smallMedium
-    Layout.maximumWidth: Layout.minimumWidth
-    Layout.minimumHeight: Layout.minimumWidth
+    implicitWidth: Kirigami.Units.iconSizes.smallMedium
+    implicitHeight: implicitWidth
 
 
     onPressed: {
@@ -180,12 +179,12 @@ MouseArea {
         interval: 500
         repeat: true
         onTriggered: {
-            if (listItem.y < root.internal.autoScrollThreshold) {
+            if (listItem.y < internal.autoScrollThreshold) {
                 listView.contentY = Math.max(0, listView.contentY - Kirigami.Units.gridUnit)
             } else {
                 listView.contentY = Math.min(listView.contentHeight - listView.height, listView.contentY + Kirigami.Units.gridUnit)
             }
-            root.internal.arrangeItem();
+            internal.arrangeItem();
         }
     }
 }
