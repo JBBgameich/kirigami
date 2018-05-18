@@ -86,90 +86,11 @@ Kirigami.ScrollablePage {
         Kirigami.SwipeListItem {
             id: listItem
             contentItem: RowLayout {
-MouseArea {
-    id: handle
-    drag {
-        target: listItem
-        axis: Drag.YAxis
-        minimumY: 0
-        maximumY: mainList.height - listItem.height
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "red"
-    }
-    preventStealing: true
-    Layout.minimumWidth: Kirigami.Units.iconSizes.smallMedium
-    Layout.maximumWidth: Layout.minimumWidth
-    Layout.minimumHeight: Layout.minimumWidth
-    
-
-    property int startY
-    property int mouseDownY
-    property Item originalParent
-    
-    property int currentIndex: index
-    property int autoScrollThreshold: listItem.height * 3
-
-    onPressed: {
-        originalParent = listItem.parent;
-        listItem.parent = mainList;
-        listItem.y = originalParent.mapToItem(listItem.parent, listItem.x, listItem.y).y;
-        originalParent.z = 99;
-        startY = listItem.y;
-        mouseDownY = mouse.y;
-    }
-
-    function arrangeItem() {
-        var newIndex = mainList.indexAt(1, mainList.contentItem.mapFromItem(listItem, 0, 0).y + mouseDownY);
-
-        if (Math.abs(listItem.y - startY) > height && newIndex > -1 && newIndex != index) {
-            listModel.move(index, newIndex, 1)
-        }
-    }
-    onPositionChanged: {
-        arrangeItem();
-
-        scrollTimer.interval = 500 * Math.max(0.1, (1-Math.max(autoScrollThreshold - listItem.y, listItem.y - mainList.height + autoScrollThreshold + listItem.height) / autoScrollThreshold));
-        scrollTimer.running = (listItem.y < autoScrollThreshold ||
-                    listItem.y > mainList.height - autoScrollThreshold);
-    }
-    onReleased: {
-        listItem.y = originalParent.mapFromItem(listItem, 0, 0).y;
-        listItem.parent = originalParent;
-        dropAnimation.running = true;
-        scrollTimer.running = false;
-    }
-    onCanceled: released()
-    SequentialAnimation {
-        id: dropAnimation
-        YAnimator {
-            target: listItem
-            from: listItem.y 
-            to: 0
-            duration: Kirigami.Units.longDuration
-            easing.type: Easing.InOutQuad
-        }
-        PropertyAction {
-            target: listItem.parent
-            property: "z"
-            value: 0
-        }
-    }
-    Timer {
-        id: scrollTimer
-        interval: 500
-        repeat: true
-        onTriggered: {
-            if (listItem.y < handle.autoScrollThreshold) {
-                mainList.contentY = Math.max(0, mainList.contentY - Kirigami.Units.gridUnit)
-            } else {
-                mainList.contentY = Math.min(mainList.contentHeight - mainList.height, mainList.contentY + Kirigami.Units.gridUnit)
-            }
-            handle.arrangeItem();
-        }
-    }
-}
+                Kirigami.ListItemDragHandle {
+                    listItem: listItem
+                    listView: mainList
+                    onMoveRequested: listModel.move(oldIndex, newIndex, 1)
+                }
 
                 Controls.Label {
                     Layout.fillWidth: true
@@ -211,9 +132,9 @@ MouseArea {
             }
         }
         moveDisplaced: Transition {
-            NumberAnimation {
-                property: "y"
+            YAnimator {
                 duration: Kirigami.Units.longDuration
+                easing.type: Easing.InOutQuad
             }
         }
         delegate: Kirigami.DelegateRecycler {
