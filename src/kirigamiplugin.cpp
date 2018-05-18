@@ -169,7 +169,7 @@ void KirigamiPlugin::registerTypes(const char *uri)
     qmlRegisterType<DelegateRecycler>(uri, 2, 4, "DelegateRecycler");
 
     //2.5
-    qmlRegisterType(componentUrl(QStringLiteral("ListItemDragHandle.qml")), uri, 2, 4, "ListItemDragHandle");
+    qmlRegisterType(componentUrl(QStringLiteral("ListItemDragHandle.qml")), uri, 2, 5, "ListItemDragHandle");
 
     qmlProtectModule(uri, 2);
 }
