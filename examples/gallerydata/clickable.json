@@ -1,0 +1,7 @@
+{
+  "template": "custom",
+  "prebuild": "./fetch-deps.sh",
+  "build": "../build.sh",
+  "kill": "qmlscene",
+  "sdk": "ubuntu-sdk-16.04"
+}
