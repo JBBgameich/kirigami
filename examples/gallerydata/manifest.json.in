@@ -9,7 +9,7 @@
             "desktop":  "org.kde.kirigamigallery.desktop"
         }
     },
-    "version": "5.45.1",
+    "version": "5.45.2",
     "maintainer": "Jonah Brüchert <jbb@kaidan.im>",
     "framework": "ubuntu-sdk-16.04"
 }
