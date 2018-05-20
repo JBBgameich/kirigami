@@ -3,10 +3,12 @@
 ARCH=$(dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_MULTIARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH)
 
-DEB_TARGET_DIR="build/deps"
+DEB_TARGET_DIR="$SOURCES/build/deps"
 
 KIRIGAMI_VERSION="5.44.0-2"
 QQC2_VERSION="5.9.3-0ubports3"
+
+mkdir $DEB_TARGET_DIR -p
 
 install_deb() {
 	BASE_URL="${1}"; PKG="${2}"; VERSION="${3}"
@@ -37,5 +39,3 @@ download_deps() {
 	echo "I: Installing libraries"
 	mv $DEB_TARGET_DIR/usr/* $DEB_TARGET_DIR/
 }
-
-if [ ! -d build/deps ]; then download_deps; fi

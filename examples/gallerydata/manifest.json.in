@@ -1,15 +1,15 @@
 {
     "name": "org.kde.kirigamigallery",
-    "description": "Demo application for Kirigami and QtQUickControls 2",
+    "description": "Demo application for Kirigami and QtQuickControls 2",
     "title": "Kirigami Gallery",
     "architecture": "@CLICK_ARCH@",
     "hooks": {
         "kirigamigallery": {
-            "apparmor": "org.kde.kirigamigallery.apparmor",
+            "apparmor": "apparmor.json",
             "desktop":  "org.kde.kirigamigallery.desktop"
         }
     },
-    "version": "5.46",
-    "maintainer": "Jonah Brüchert <jbb@kaidan.im",
+    "version": "5.45.1",
+    "maintainer": "Jonah Brüchert <jbb@kaidan.im>",
     "framework": "ubuntu-sdk-16.04"
 }
