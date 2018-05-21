@@ -4,5 +4,5 @@ Type=Application
 Version=1.0
 Terminal=false
 X-Ubuntu-Touch=true
-Exec=env QT_QUICK_CONTROLS_MOBILE=true QT_SCALE_FACTOR=2 QT_QUICK_CONTROLS_STYLE=Material qmlscene contents/ui/ExampleApp.qml
+Exec=run.sh
 Icon=kirigami.png
