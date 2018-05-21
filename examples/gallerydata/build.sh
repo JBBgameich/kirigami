@@ -21,6 +21,7 @@ cp -r \
 	$SOURCES/contents \
 	$SOURCES/org.kde.kirigamigallery.desktop \
 	$SOURCES/apparmor.json \
+	$SOURCES/run.sh \
 	$CLICK_TARGET_DIR
 
 sed s/@CLICK_ARCH@/$ARCH/g $SOURCES/manifest.json.in > $CLICK_TARGET_DIR/manifest.json
